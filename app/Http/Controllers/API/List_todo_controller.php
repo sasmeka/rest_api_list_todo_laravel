@@ -17,8 +17,15 @@ class List_todo_controller extends Controller
             $limit = $request->get("limit") === null ? 3 : $request->get("limit");
             $page = $request->get("page") === null ? 1 : $request->get("page");
             $offset = $page >= 1 ? 0 + (($page - 1) * $limit) : 0;
-            $dataall = List_todo::all();
-            $data = DB::select('select * from list_todos ORDER BY date DESC LIMIT ? OFFSET ?', [$limit, $offset]);
+            DB::beginTransaction();
+            try {
+                $dataall = List_todo::all();
+                $data = DB::select('select * from list_todos ORDER BY date DESC LIMIT ? OFFSET ?', [$limit, $offset]);
+                DB::commit();
+            } catch (Exception $e) {
+                DB::rollback();
+                throw $e;
+            }
             $meta = new stdClass();
             $meta->next = count($dataall) <= 0 ? null : ($page == ceil(count($dataall) / $limit) ? null : $page + 1);
             $meta->prev = $page == 1 ? null : $page - 1;
