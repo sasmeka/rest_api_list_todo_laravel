@@ -38,9 +38,9 @@ class List_todo_controller extends Controller
             $date = $request->get("date");
             $list_todo = $request->get("list_todo");
             $check =  List_todo::where('date', $date)->get();
-            if (count($check) === 0) {
+            if (count($check) !== 0) {
                 return response()->json(array(
-                    "code" => 400, "status" => "error", "message" => "id or date not found."
+                    "code" => 400, "status" => "error", "message" => "the date already exists."
                 ), 400);
             };
             DB::beginTransaction();
